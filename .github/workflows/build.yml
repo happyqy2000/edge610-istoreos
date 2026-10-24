@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-  - name: 準備環境
+      - name: 準備環境
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses5-dev subversion libssl-dev gawk flex bison
