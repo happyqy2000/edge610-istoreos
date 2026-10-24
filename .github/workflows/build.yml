@@ -11,12 +11,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses5-dev subversion libssl-dev gawk flex bison
+
       - name: 下載 iStoreOS 25.12.5 正確版本 SDK
         run: |
-          # 使用經過修正的 25.12.5 官方真實 SDK 網址
-          wget https://koolcenter.com
-          tar -xJf openwrt-sdk-*.tar.xz
-          mv openwrt-sdk-* sdk
+          # 使用 25.12.5 精確的 SDK 直鏈網址
+          wget -O sdk.tar.xz "https://koolcenter.com"
+          mkdir sdk
+          tar -xJf sdk.tar.xz -C sdk --strip-components=1
 
       - name: 線上複製驅動原始碼與建立 Makefile
         run: |
