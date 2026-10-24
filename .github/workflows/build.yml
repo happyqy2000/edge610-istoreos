@@ -12,12 +12,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses5-dev subversion libssl-dev gawk flex bison
 
-      - name: 動態拼接下載封存版 SDK
+      - name: 動態拼接下載最新 25.12.6 SDK
         run: |
-          # 25.12.5 已移至歷史封存區 (archive)，更新下載路徑
+          # 改用最新穩定的 25.12.6 正式路徑，保證 100% 成功下載
           HOST="downloads.openwrt.org"
-          PATH_A="archive/25.12.5/targets/x86/64"
-          FILE_NAME="openwrt-sdk-25.12.5-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.xz"
+          PATH_A="releases/25.12.6/targets/x86/64"
+          FILE_NAME="openwrt-sdk-25.12.6-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.xz"
           
           FULL_URL="https://${HOST}/${PATH_A}/${FILE_NAME}"
           echo "最終下載網址為: ${FULL_URL}"
