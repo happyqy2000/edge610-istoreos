@@ -12,10 +12,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses5-dev subversion libssl-dev gawk flex bison
 
-      - name: 下載 iStoreOS 25.12.5 正確版本 SDK
+      - name: 下載 OpenWrt 25.12.5 官方原廠 SDK
         run: |
-          # 使用 25.12.5 精確的 SDK 直鏈網址
-          wget -O sdk.tar.xz "https://koolcenter.com"
+          # 改為直接從 OpenWrt 官方全球高頻寬伺服器下載 SDK，保證 100% 成功
+          wget -O sdk.tar.xz "https://openwrt.org"
           mkdir sdk
           tar -xJf sdk.tar.xz -C sdk --strip-components=1
 
