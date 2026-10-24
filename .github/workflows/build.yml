@@ -1,0 +1,66 @@
+name: Build Edge610 APK for iStoreOS
+
+on:
+  workflow_dispatch: # 讓您可以手動點擊按鈕開始編譯
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 準備環境
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses5-dev gsc-m68k subversion libssl-dev gawk flex bison
+
+      - name: 下載 iStoreOS 25.12.5 SDK
+        run: |
+          # 下載 25.12.5 版本的官方 SDK
+          wget https://koolcenter.com || wget https://koolcenter.com
+          tar -xJf openwrt-sdk-*.tar.xz
+          mv openwrt-sdk-* sdk
+
+      - name: 線上複製驅動原始碼與建立 Makefile
+        run: |
+          cd sdk
+          mkdir -p package/kernel/edge610
+          
+          cat << 'EOF' > package/kernel/edge610/Makefile
+          include $(TOPDIR)/rules.mk
+          include $(INCLUDE_DIR)/kernel.mk
+
+          PKG_NAME:=edge610
+          PKG_RELEASE:=1
+          PKG_SOURCE_PROTO:=git
+          PKG_SOURCE_URL:=https://github.com
+          PKG_SOURCE_VERSION:=main
+
+          include $(INCLUDE_DIR)/package.mk
+
+          define KernelPackage/edge610
+            SUBMENU:=Network Devices
+            TITLE:=Board support for SD-WAN Edge 610
+            DEPENDS:=+kmod-mii +kmod-i2c-core +kmod-ixgbe
+            FILES:= \
+              $(PKG_BUILD_DIR)/src/edge610_switch_standalone.ko \
+              $(PKG_BUILD_DIR)/src/edge610_dsa.ko
+            AUTOLOAD:=$(delay) 30 edge610_switch_standalone edge610_dsa
+          enddefine
+
+          define Build/Compile
+              $(KERNEL_MAKE) M="$(PKG_BUILD_DIR)/src" modules
+          enddefine
+
+          $(eval $(call KernelPackage,edge610))
+          EOF
+
+      - name: 雲端線上編譯
+        run: |
+          cd sdk
+          make defconfig
+          make package/kernel/edge610/compile V=s -j$(nproc)
+
+      - name: 上傳編譯好的 APK 安裝包
+        uses: actions/upload-artifact@v4
+        with:
+          name: edge610-istoreos-apk
+          path: sdk/bin/targets/x86/64/packages/*.apk
