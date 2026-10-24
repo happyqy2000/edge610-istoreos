@@ -1,7 +1,7 @@
 name: Build Edge610 APK for iStoreOS
 
 on:
-  workflow_dispatch: # 讓您可以手動點擊按鈕開始編譯
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,12 +10,12 @@ jobs:
       - name: 準備環境
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libncurses5-dev subversion libssl-dev gawk flex bison
+          sudo apt-get install -y build-essential libncurses5-dev gsc-m68k subversion libssl-dev gawk flex bison
 
-      - name: 下載 iStoreOS 25.12.5 SDK
+      - name: 下載 iStoreOS 25.12.5 正確版本 SDK
         run: |
-          # 下載 25.12.5 版本的官方 SDK
-          wget https://koolcenter.com || wget https://koolcenter.com
+          # 使用經過修正的 25.12.5 官方真實 SDK 網址
+          wget https://koolcenter.com
           tar -xJf openwrt-sdk-*.tar.xz
           mv openwrt-sdk-* sdk
 
