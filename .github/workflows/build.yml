@@ -12,14 +12,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libncurses5-dev subversion libssl-dev gawk flex bison
 
-      - name: 下載 OpenWrt 25.12.5 官方原廠 SDK
-        run: |
-          # 改為直接從 OpenWrt 官方全球高頻寬伺服器下載 SDK，保證 100% 成功
-          wget -O sdk.tar.xz "https://openwrt.org"
-          mkdir sdk
-          tar -xJf sdk.tar.xz -C sdk --strip-components=1
 
-      - name: 線上複製驅動原始碼與建立 Makefile
+      - name: 複製 iStoreOS/OpenWrt 25.12 原始碼
+        run: |
+          # 直接從 GitHub 克隆穩定分支，完全不需下載任何 .tar.xz 壓縮包
+          git clone --depth 1 -b openwrt-25.12 https://github.com sdk
+
+      - name: 配置工具鏈與建立 Makefile
         run: |
           cd sdk
           mkdir -p package/kernel/edge610
@@ -53,11 +52,21 @@ jobs:
           $(eval $(call KernelPackage,edge610))
           EOF
 
-      - name: 雲端線上編譯
+      - name: 產生 x86_64 預設組態
         run: |
           cd sdk
+          # 設定目標為 x86 / 64 位元架構
+          echo "CONFIG_TARGET_x86=y" > .config
+          echo "CONFIG_TARGET_x86_64=y" >> .config
           make defconfig
-          make package/kernel/edge610/compile V=s -j$(nproc)
+
+      - name: 雲端線上編譯 APK
+        run: |
+          cd sdk
+          # 只編譯所需的工具鏈和 edge610 套件
+          make tools/install -j$(nproc)
+          make toolchain/install -j$(nproc)
+          make package/kernel/edge610/compile V=s
 
       - name: 上傳編譯好的 APK 安裝包
         uses: actions/upload-artifact@v4
